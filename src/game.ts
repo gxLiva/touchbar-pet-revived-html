@@ -13,6 +13,11 @@ export class Game {
         this.config = config;
     }
 
+    private updateCanvasSize() {
+        this.ctx.canvas.width = this.ctx.canvas.clientWidth;
+        this.ctx.canvas.height = this.ctx.canvas.clientHeight;
+    }
+
     private clearScreen() {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -25,7 +30,7 @@ export class Game {
     }
 
     public update() {
-        this.clearScreen();
+        this.updateCanvasSize();
 
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(10, 10, this.rectWidth, 100);

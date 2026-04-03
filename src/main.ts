@@ -15,14 +15,6 @@ window.addEventListener("load", () => {
         throw new Error("Failed to retrieve canvas context!");
     }
 
-    const updateCanvasSize = () => {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-        console.log({width: canvas.width, height: canvas.height});
-    };
-    updateCanvasSize();
-    window.addEventListener("resize", updateCanvasSize);
-
     const game = new Game(ctx, {
         updateInterval: 1000 / 60
     });
