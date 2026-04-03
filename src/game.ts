@@ -1,0 +1,42 @@
+type Config = {
+    updateInterval: number,
+};
+
+export class Game {
+    private ctx: CanvasRenderingContext2D;
+    private config: Config;
+    private rectWidth: number = 0;
+    private rectWidthInc: number = 0.1;
+
+    public constructor(ctx: CanvasRenderingContext2D, config: Config) {
+        this.ctx = ctx;
+        this.config = config;
+    }
+
+    private clearScreen() {
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
+    public start() {
+        setInterval(() => {
+            this.update()
+        }, this.config.updateInterval);
+    }
+
+    public update() {
+        this.clearScreen();
+
+        this.ctx.fillStyle = "green";
+        this.ctx.fillRect(10, 10, this.rectWidth, 100);
+
+        const nextRectWidth = this.rectWidth + this.rectWidthInc * this.config.updateInterval;
+        if (nextRectWidth > 100) {
+            this.rectWidthInc = -0.1;
+        }
+        if (nextRectWidth < 0) {
+            this.rectWidthInc = 0.1;
+        }
+        this.rectWidth += this.rectWidthInc * this.config.updateInterval;
+    }
+}
