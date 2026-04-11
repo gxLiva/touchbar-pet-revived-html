@@ -32,8 +32,7 @@ export class Game {
     public update() {
         this.updateCanvasSize();
 
-        this.ctx.fillStyle = "green";
-        this.ctx.fillRect(10, 10, this.rectWidth, 100);
+        
 
         const nextRectWidth = this.rectWidth + this.rectWidthInc * this.config.updateInterval;
         if (nextRectWidth > 100) {
