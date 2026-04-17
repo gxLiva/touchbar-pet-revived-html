@@ -17,6 +17,8 @@ export class Game {
     private state = states.Idle;
     private midH: number;
     private midW: number;
+    private health: number = 10;
+    private hunger: number = 0;
     private foods: {
         x: number,
         y: number
@@ -84,6 +86,7 @@ export class Game {
 
         this.updateCanvasSize();
 
+        //assets display
         const pet = new Image();
         if (this.state == states.Idle) {
             pet.src = this.body[this.counter.body_count];
@@ -101,14 +104,17 @@ export class Game {
         const food = new Image();
         food.src = "src/assets/food_Normal@2x.png";
 
+        //text display
+        this.ctx.letterSpacing = `${this.midW * 2 * 0.001}px`
         this.ctx.fillStyle = "white"
-        this.ctx.font = `${this.midW * 2 * 0.01}px serif`;
-        this.ctx.fillText("Hello world", this.midW * 2 * 0.92, this.midH * 2 * 0.92);
+        this.ctx.font = `${this.midW * 2 * 0.009}px 'Varela Round'`;
+        this.ctx.fillText(`Health: ${this.health}    Hunger: ${this.hunger}`, this.midW * 2 * 0.85, this.midH * 2 * 0.92);
 
+        //food positions
         for (let i = 0; i < this.foods.length; i++) {
             this.ctx.drawImage(food, this.foods[i].x, this.foods[i].y);
             if (this.foods[i].y < this.midH + 30) {
-                this.foods[i].acc += 0.2
+                this.foods[i].acc += 0.22
                 this.foods[i].y += 0.1 * this.config.updateInterval * this.foods[i].acc;
                 if (this.foods[i].y > this.midH + 30) {
                     this.foods[i].y = this.midH + 30;
