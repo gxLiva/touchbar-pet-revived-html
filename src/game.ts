@@ -15,6 +15,8 @@ export class Game {
     private rectWidth: number = 0;
     private rectWidthInc: number = 0.1;
     private state = states.Idle;
+    private midH: number;
+    private midW: number;
     private foods: {
         x: number,
         y: number
@@ -45,6 +47,8 @@ export class Game {
     public constructor(ctx: CanvasRenderingContext2D, config: Config) {
         this.ctx = ctx;
         this.config = config;
+        this.midH = this.ctx.canvas.clientHeight/2;
+        this.midW = this.ctx.canvas.clientWidth/2;
     }
 
     private updateCanvasSize() {
@@ -59,7 +63,7 @@ export class Game {
 
     public start() {
         this.ctx.canvas.addEventListener("click", (event) => {
-            this.onClick(event.offsetX, event.offsetY);
+            this.onClick(event.offsetX, event.offsetY, this.midH + 30);
         });
 
         setInterval(() => {
@@ -72,6 +76,8 @@ export class Game {
         if (this.counter.count % 180 == 0) {
             if (this.counter.eye_count == 0) {
                 this.counter.eye_count = 1;
+            } else {
+                this.counter.eye_count = 0;
             }
         }
 
@@ -82,22 +88,30 @@ export class Game {
         if (this.state == states.Idle) {
             pet.src = this.body[this.counter.body_count];
         }
-        this.ctx.drawImage(pet, this.ctx.canvas.width/2,this.ctx.canvas.height/2);
+        this.ctx.drawImage(pet, this.midW, this.midH);
 
         const eye = new Image();
         eye.src = this.eye[this.counter.eye_count];
-        this.ctx.drawImage(eye, this.ctx.canvas.width/2,this.ctx.canvas.height/2)
+        this.ctx.drawImage(eye, this.midW, this.midH)
+
+        const mouth = new Image();
+        mouth.src = "src/assets/mouthNeutral_Normal@2x.png";
+        this.ctx.drawImage(mouth, this.midW, this.midH)
 
         const food = new Image();
         food.src = "src/assets/food_Normal@2x.png";
 
+        this.ctx.fillStyle = "white"
+        this.ctx.font = `${this.midW * 2 * 0.01}px serif`;
+        this.ctx.fillText("Hello world", this.midW * 2 * 0.92, this.midH * 2 * 0.92);
+
         for (let i = 0; i < this.foods.length; i++) {
             this.ctx.drawImage(food, this.foods[i].x, this.foods[i].y);
-            if (this.foods[i].y < 380) {
+            if (this.foods[i].y < this.midH + 30) {
                 this.foods[i].acc += 0.2
                 this.foods[i].y += 0.1 * this.config.updateInterval * this.foods[i].acc;
-                if (this.foods[i].y > 390) {
-                    this.foods[i].y = 390;
+                if (this.foods[i].y > this.midH + 30) {
+                    this.foods[i].y = this.midH + 30;
                 }
             }
         }
@@ -121,8 +135,8 @@ export class Game {
          */
     }
 
-    private onClick(x: number, y: number) {
-        if (y < 390) {
+    private onClick(x: number, y: number, hNum: number) {
+        if (y < hNum) {
             this.foods.push({x: x, y: y, acc: 1});
         }
     }

@@ -15,7 +15,7 @@ window.addEventListener("load", () => {
         throw new Error("Failed to retrieve canvas context!");
     }
 
-    const game = new Game(ctx, {
+    const game = new Game(ctx,{
         updateInterval: 1000 / 60
     });
 
