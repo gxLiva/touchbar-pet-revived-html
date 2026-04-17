@@ -16,7 +16,8 @@ window.addEventListener("load", () => {
     }
 
     const game = new Game(ctx,{
-        updateInterval: 1000 / 60
+        updateInterval: 1000 / 60,
+        framePerSec: 60
     });
 
     game.start();

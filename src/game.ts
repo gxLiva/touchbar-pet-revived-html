@@ -1,12 +1,16 @@
 type Config = {
-    updateInterval: number,
+    updateInterval: number;
+    framePerSec: number;
 };
 
+// @ts-ignore
 enum states {
     Idle,
     Moving,
     Resting,
-    Died
+    Died,
+    WantFood,
+    Eating
 }
 
 export class Game {
@@ -18,7 +22,10 @@ export class Game {
     private midH: number;
     private midW: number;
     private health: number = 10;
-    private hunger: number = 0;
+    private hunger: number = 5;
+    private social: number = 5;
+    private bodyPos: number;
+    private targetPos: number;
     private foods: {
         x: number,
         y: number
@@ -46,11 +53,13 @@ export class Game {
         "adultWalk4_Normal@2x.png"
     ]
 
-    public constructor(ctx: CanvasRenderingContext2D, config: Config) {
+    public constructor(ctx: CanvasRenderingContext2D, config: { updateInterval: number; framePerSec: number}) {
         this.ctx = ctx;
         this.config = config;
         this.midH = this.ctx.canvas.clientHeight/2;
         this.midW = this.ctx.canvas.clientWidth/2;
+        this.bodyPos = this.midW;
+        this.targetPos = this.bodyPos;
     }
 
     private updateCanvasSize() {
@@ -75,7 +84,7 @@ export class Game {
 
     public update() {
         this.counter.count += 1;
-        if (this.counter.count % 180 == 0) {
+        if (this.counter.count * this.config.framePerSec / 1000 % 4 == 0) {
             if (this.counter.eye_count == 0) {
                 this.counter.eye_count = 1;
             } else {
@@ -87,19 +96,43 @@ export class Game {
         this.updateCanvasSize();
 
         //assets display
+        let ind: number = 0;
         const pet = new Image();
         if (this.state == states.Idle) {
             pet.src = this.body[this.counter.body_count];
+            if (this.foods.length != 0) {
+                this.state = states.WantFood;
+                ind = this.getFoodPos(this.foods, this.bodyPos);
+                this.targetPos = this.foods[ind].x
+            }
+        } else if (this.state == states.WantFood) {
+            if (Math.abs(this.targetPos - this.bodyPos) <= 0.5 * this.config.updateInterval) {
+                this.bodyPos = this.targetPos;
+            }
+
+             if (this.targetPos > this.bodyPos) {
+                 this.bodyPos += 0.3 * this.config.updateInterval
+             } else if (this.targetPos < this.bodyPos) {
+                 this.bodyPos -= 0.3 * this.config.updateInterval
+             } else {
+                 if (this.hunger != 0) {
+                     this.hunger -= 1
+                 }
+                 this.foods.splice(ind, 1);
+                 this.state = states.Idle
+             }
+
+            pet.src = this.body[this.counter.body_count];
         }
-        this.ctx.drawImage(pet, this.midW, this.midH);
+        this.ctx.drawImage(pet, this.bodyPos, this.midH);
 
         const eye = new Image();
         eye.src = this.eye[this.counter.eye_count];
-        this.ctx.drawImage(eye, this.midW, this.midH)
+        this.ctx.drawImage(eye, this.bodyPos, this.midH)
 
         const mouth = new Image();
         mouth.src = "src/assets/mouthNeutral_Normal@2x.png";
-        this.ctx.drawImage(mouth, this.midW, this.midH)
+        this.ctx.drawImage(mouth, this.bodyPos, this.midH)
 
         const food = new Image();
         food.src = "src/assets/food_Normal@2x.png";
@@ -107,8 +140,8 @@ export class Game {
         //text display
         this.ctx.letterSpacing = `${this.midW * 2 * 0.001}px`
         this.ctx.fillStyle = "white"
-        this.ctx.font = `${this.midW * 2 * 0.009}px 'Varela Round'`;
-        this.ctx.fillText(`Health: ${this.health}    Hunger: ${this.hunger}`, this.midW * 2 * 0.85, this.midH * 2 * 0.92);
+        this.ctx.font = `${this.midW * 2 * 0.008}px 'Varela Round'`;
+        this.ctx.fillText(`Health: ${this.health}    Hunger: ${this.hunger}    Social: ${this.social}`, this.midW * 2 * 0.8, this.midH * 2 * 0.92);
 
         //food positions
         for (let i = 0; i < this.foods.length; i++) {
@@ -139,6 +172,19 @@ export class Game {
         this.rectWidth += this.rectWidthInc * this.config.updateInterval;
 
          */
+    }
+
+    private getFoodPos(foods, petPos: number) {
+        let ind = 0;
+        let min = Math.abs(foods[0].x - petPos)
+        for (let i = 0; i < foods.length; i++) {
+            if (Math.abs(foods[i].x - petPos) < min) {
+                ind = i;
+            }
+        }
+
+        return ind
+
     }
 
     private onClick(x: number, y: number, hNum: number) {
