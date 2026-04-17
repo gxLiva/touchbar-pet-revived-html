@@ -82,11 +82,11 @@ export class Game {
         if (this.state == states.Idle) {
             pet.src = this.body[this.counter.body_count];
         }
-        this.ctx.drawImage(pet, 700,350);
+        this.ctx.drawImage(pet, this.ctx.canvas.width/2,this.ctx.canvas.height/2);
 
         const eye = new Image();
         eye.src = this.eye[this.counter.eye_count];
-        this.ctx.drawImage(eye, 700, 350)
+        this.ctx.drawImage(eye, this.ctx.canvas.width/2,this.ctx.canvas.height/2)
 
         const food = new Image();
         food.src = "src/assets/food_Normal@2x.png";
