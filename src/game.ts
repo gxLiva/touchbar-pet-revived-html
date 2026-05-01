@@ -53,6 +53,8 @@ export class Game {
         "adultWalk4_Normal@2x.png"
     ]
 
+
+//constructor
     public constructor(ctx: CanvasRenderingContext2D, config: { updateInterval: number; framePerSec: number}) {
         this.ctx = ctx;
         this.config = config;
@@ -96,6 +98,7 @@ export class Game {
         this.updateCanvasSize();
 
         //assets display
+        let eating_time = 0;
         let ind: number = 0;
         const pet = new Image();
         if (this.state == states.Idle) {
@@ -118,11 +121,16 @@ export class Game {
                  if (this.hunger != 0) {
                      this.hunger -= 1
                  }
-                 this.foods.splice(ind, 1);
-                 this.state = states.Idle
-             }
 
+                 this.foods.splice(ind, 1);
+                 this.state = states.Eating
+             }
+            eating_time = this.counter.count + this.config.framePerSec * 2;
             pet.src = this.body[this.counter.body_count];
+        } else if (this.state == states.Eating) {
+            if (this.counter.count > eating_time) {
+                this.state = states.Idle
+            }
         }
         this.ctx.drawImage(pet, this.bodyPos, this.midH);
 
