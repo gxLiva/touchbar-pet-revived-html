@@ -26,6 +26,7 @@ export class Game {
     private social: number = 5;
     private bodyPos: number;
     private targetPos: number;
+    private eating_time = 0;
     private foods: {
         x: number,
         y: number
@@ -35,7 +36,7 @@ export class Game {
         count: 0,
         eye_count: 0,
         body_count: 0,
-        mouse_count: 0
+        mouth_count: 0
     }
     private eye: string[] = [
         "src/assets/eyesOpen_Normal@2x.png",
@@ -51,6 +52,12 @@ export class Game {
         "src/assets/adultWalk2_Normal@2x.png",
         "adultWalk3_Normal@2x.png",
         "adultWalk4_Normal@2x.png"
+    ]
+
+    private mouth: string[]= [
+        "src/assets/mouthNeutral_Normal@2x.png",
+        "src/assets/adultMouthEating1b_Normal@2x.png",
+        "src/assets/adultMouthEating2b_Normal@2x.png"
     ]
 
 
@@ -98,11 +105,9 @@ export class Game {
         this.updateCanvasSize();
 
         //assets display
-        let eating_time = 0;
         let ind: number = 0;
         const pet = new Image();
         if (this.state == states.Idle) {
-            pet.src = this.body[this.counter.body_count];
             if (this.foods.length != 0) {
                 this.state = states.WantFood;
                 ind = this.getFoodPos(this.foods, this.bodyPos);
@@ -113,25 +118,38 @@ export class Game {
                 this.bodyPos = this.targetPos;
             }
 
-             if (this.targetPos > this.bodyPos) {
+             if (this.targetPos > this.bodyPos) {                                                   //food is on the right
                  this.bodyPos += 0.3 * this.config.updateInterval
-             } else if (this.targetPos < this.bodyPos) {
+             } else if (this.targetPos < this.bodyPos) {                                            //food is on the left
                  this.bodyPos -= 0.3 * this.config.updateInterval
-             } else {
+             } else {                                                                               //food is right here / eating
                  if (this.hunger != 0) {
                      this.hunger -= 1
                  }
 
                  this.foods.splice(ind, 1);
                  this.state = states.Eating
+
+                 this.counter.mouth_count = 1;
+                 this.eating_time = this.counter.count + this.config.framePerSec * 2
              }
-            eating_time = this.counter.count + this.config.framePerSec * 2;
-            pet.src = this.body[this.counter.body_count];
+
         } else if (this.state == states.Eating) {
-            if (this.counter.count > eating_time) {
-                this.state = states.Idle
+            if (this.counter.count > this.eating_time) {
+                this.counter.mouth_count = 0;
+                this.state = states.Idle;
+            }
+
+            if (this.counter.count % this.config.framePerSec/10 == 0) {
+                console.log(this.counter.count, Math.floor(this.config.framePerSec/5))
+                console.log("runed")
+                this.counter.mouth_count = this.counter.mouth_count == 1 ? 2 : 1;
             }
         }
+
+        //loading assets
+
+        pet.src = this.body[this.counter.body_count];
         this.ctx.drawImage(pet, this.bodyPos, this.midH);
 
         const eye = new Image();
@@ -139,7 +157,7 @@ export class Game {
         this.ctx.drawImage(eye, this.bodyPos, this.midH)
 
         const mouth = new Image();
-        mouth.src = "src/assets/mouthNeutral_Normal@2x.png";
+        mouth.src = this.mouth[this.counter.mouth_count];
         this.ctx.drawImage(mouth, this.bodyPos, this.midH)
 
         const food = new Image();
