@@ -10,7 +10,8 @@ enum states {
     Resting,
     Died,
     WantFood,
-    Eating
+    Eating,
+    Peted
 }
 
 export class Game {
@@ -26,7 +27,7 @@ export class Game {
     private social: number = 5;
     private bodyPos: number;
     private targetPos: number;
-    private eating_time = 0;
+    private time = 0;
     private foods: {
         x: number,
         y: number
@@ -131,20 +132,28 @@ export class Game {
                  this.state = states.Eating
 
                  this.counter.mouth_count = 1;
-                 this.eating_time = this.counter.count + this.config.framePerSec * 2
+                 this.time = this.counter.count + this.config.framePerSec * 2
              }
 
         } else if (this.state == states.Eating) {
-            if (this.counter.count > this.eating_time) {
+            if (this.counter.count > this.time) {
                 this.counter.mouth_count = 0;
                 this.state = states.Idle;
             }
 
             if (this.counter.count % this.config.framePerSec/10 == 0) {
-                console.log(this.counter.count, Math.floor(this.config.framePerSec/5))
-                console.log("runed")
                 this.counter.mouth_count = this.counter.mouth_count == 1 ? 2 : 1;
             }
+        } else if (this.state == states.Peted) {
+            if (this.counter.count > this.time) {
+                this.state = states.Idle;
+            }
+
+
+            if (this.counter.count % this.config.framePerSec/10 == 0) {
+                this.counter.mouth_count = this.counter.mouth_count == 1 ? 2 : 1;
+            }
+
         }
 
         //loading assets
@@ -214,7 +223,11 @@ export class Game {
     }
 
     private onClick(x: number, y: number, hNum: number) {
-        if (y < hNum) {
+        if ((this.bodyPos + 70 > x && this.bodyPos - 12 < x) && (this.midH + 30 > y && this.midH - 20 < y)) {
+            this.state = states.Peted
+            this.counter.mouth_count = 1;
+            this.time = this.counter.count + this.config.framePerSec * 2
+        } else if (y < hNum) {
             this.foods.push({x: x, y: y, acc: 1});
         }
     }
